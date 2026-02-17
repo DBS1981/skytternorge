@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Testskjema – Dioptersikte (knepp-test)</title>
 
-  <!-- Charts (skjerm) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- PDF generator (gir filnavn + stabil PDF uten Windows-printer) -->
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
   <style>
@@ -24,8 +21,14 @@
       --radius: 18px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+
+      /* Responsiv spacing */
+      --pad: clamp(14px, 2.6vw, 20px);
+      --gap: clamp(12px, 2vw, 16px);
     }
+
     *{box-sizing:border-box}
+    html, body{ height:100%; }
     body{
       margin:0;
       background: radial-gradient(1200px 800px at 20% -10%, rgba(124,92,255,.35), transparent 60%),
@@ -33,21 +36,25 @@
                   var(--bg);
       color:var(--text);
       font-family:var(--sans);
+      -webkit-text-size-adjust: 100%;
     }
+
     header{
-      padding:24px 20px 10px;
+      padding: calc(var(--pad) + 6px) var(--pad) 10px;
       max-width:1200px;
       margin:0 auto;
     }
-    h1{ margin:0 0 6px; font-size: 22px; letter-spacing:.2px; }
-    .sub{ margin:0; color:rgba(234,240,255,.75); font-size: 14px; line-height:1.35; }
+    h1{ margin:0 0 6px; font-size: clamp(18px, 2.4vw, 22px); letter-spacing:.2px; }
+    .sub{ margin:0; color:rgba(234,240,255,.75); font-size: 13px; line-height:1.4; }
+
     .wrap{
       max-width:1200px;
       margin:0 auto;
-      padding: 10px 20px 30px;
+      padding: 10px var(--pad) 30px;
       display:grid;
-      gap:16px;
+      gap:var(--gap);
     }
+
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
@@ -56,7 +63,7 @@
       overflow:hidden;
     }
     .card .top{
-      padding:16px 16px 12px;
+      padding:14px var(--pad) 12px;
       border-bottom:1px solid var(--line);
       display:flex;
       gap:10px;
@@ -64,17 +71,30 @@
       justify-content:space-between;
       flex-wrap:wrap;
     }
-    .card .body{ padding:16px; }
+    .card .body{ padding: var(--pad); }
 
+    /* ---------- RESPONSIVE FORM GRID ---------- */
     .row{
       display:grid;
-      gap:10px;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items:end;
+      gap:12px;
+      grid-template-columns: 1fr; /* mobil default */
+      align-items:stretch;
     }
-    .field{grid-column: span 3}
-    .field.small{grid-column: span 2}
-    .field.wide{grid-column: span 4}
+    /* små tablets: 2 kolonner */
+    @media (min-width: 620px){
+      .row{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    /* desktop: 12-kolonne “følelse” via 4 kolonner + span-klasser */
+    @media (min-width: 980px){
+      .row{ grid-template-columns: repeat(12, minmax(0,1fr)); align-items:end; }
+      .field{ grid-column: span 3; }
+      .field.small{ grid-column: span 2; }
+      .field.wide{ grid-column: span 4; }
+    }
+    /* Når vi IKKE er desktop (mobil/tablet): ignorer “span”-klasser og la alt flyte pent */
+    @media (max-width: 979.98px){
+      .field, .field.small, .field.wide{ grid-column: auto; }
+    }
 
     label{
       display:block;
@@ -82,15 +102,17 @@
       color: rgba(234,240,255,.78);
       margin-bottom:6px;
     }
+
     input, select, button, textarea{
       width:100%;
       border-radius: 12px;
       border: 1px solid var(--line);
       background: rgba(0,0,0,.25);
       color: var(--text);
-      padding:10px 12px;
+      padding: 11px 12px; /* litt større touch */
       outline:none;
       font-size: 14px;
+      line-height: 1.2;
     }
     input::placeholder{color: rgba(234,240,255,.45)}
     input:focus, select:focus, textarea:focus{
@@ -99,19 +121,37 @@
     }
     textarea{min-height: 44px; resize: vertical;}
 
-    .btns{ display:flex; gap:10px; flex-wrap:wrap; width:auto; }
+    /* ---------- TOOLBAR BUTTONS ---------- */
+    .btns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      width:100%;
+      justify-content:flex-end;
+    }
     button{
       cursor:pointer;
       border-color: rgba(124,92,255,.55);
       background: rgba(124,92,255,.18);
       transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      padding: 10px 14px;
       width:auto;
-      padding:10px 14px;
+      min-height: 40px;
+      touch-action: manipulation;
     }
     button:hover{background: rgba(124,92,255,.25)}
     button:active{transform: translateY(1px)}
     button.secondary{ border-color: var(--line); background: rgba(255,255,255,.06); }
     button.danger{ border-color: rgba(255,77,77,.6); background: rgba(255,77,77,.12); }
+
+    /* Mobil: knapper i “2 per rad” */
+    @media (max-width: 560px){
+      .btns{ justify-content:stretch; }
+      .btns button{
+        flex: 1 1 calc(50% - 10px);
+        width:auto;
+      }
+    }
 
     .pill{
       font-family: var(--mono);
@@ -127,9 +167,18 @@
     .tabs{
       display:flex;
       gap:8px;
-      padding: 12px 16px 0;
+      padding: 12px var(--pad) 0;
       border-bottom:1px solid var(--line);
       flex-wrap:wrap;
+    }
+    /* Mobil: tabs kan scrolle horisontalt om det blir trangt */
+    @media (max-width: 480px){
+      .tabs{
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
     }
     .tab{
       border:1px solid var(--line);
@@ -140,6 +189,7 @@
       cursor:pointer;
       color: rgba(234,240,255,.8);
       user-select:none;
+      white-space:nowrap;
     }
     .tab.active{
       background: rgba(124,92,255,.18);
@@ -149,12 +199,22 @@
     .panel{display:none}
     .panel.active{display:block}
 
+    /* ---------- TABLE: WRAP + SCROLL ---------- */
+    .tableWrap{
+      width:100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.10);
+    }
     table{
       width:100%;
+      min-width: 760px; /* viktig: lar mobil scrolle */
       border-collapse: collapse;
       overflow:hidden;
       border-radius: 14px;
-      border:1px solid var(--line);
+      border:none; /* flyttet til tableWrap */
     }
     thead th{
       text-align:left;
@@ -177,7 +237,17 @@
 
     .mono{font-family:var(--mono)}
     .mm{opacity:.9}
-    .inputCell input{ width: 110px; padding:8px 10px; font-family: var(--mono); }
+    .inputCell input{
+      width: 110px;
+      max-width: 100%;
+      padding:8px 10px;
+      font-family: var(--mono);
+    }
+
+    /* På veldig små skjermer: litt smalere input */
+    @media (max-width: 420px){
+      .inputCell input{ width: 92px; }
+    }
 
     .badge{
       display:inline-flex;
@@ -218,6 +288,7 @@
       align-items:center;
       padding:12px 12px;
       border-bottom:1px solid rgba(255,255,255,.10);
+      flex-wrap:wrap;
     }
     .roundHdr h3{ margin:0; font-size:14px; letter-spacing:.2px; }
 
@@ -229,6 +300,7 @@
     @media(min-width: 980px){
       .grid2{ grid-template-columns: 1.2fr .8fr; }
     }
+
     .chartCard{
       border:1px solid rgba(255,255,255,.10);
       border-radius: 16px;
@@ -241,9 +313,15 @@
       justify-content:space-between;
       gap:10px;
       margin-bottom:8px;
+      flex-wrap:wrap;
     }
     .chartTitle span{ font-size:12px; color: rgba(234,240,255,.78); }
-    canvas{ width:100% !important; height: 260px !important; }
+
+    /* Responsiv chart-høyde */
+    canvas{
+      width:100% !important;
+      height: clamp(200px, 34vw, 280px) !important;
+    }
 
     .errorBox{
       border:1px solid rgba(255,77,77,.55);
@@ -266,7 +344,6 @@
     @media print{
       header, .wrap{ display:none !important; }
       body{ background:#fff !important; color:#000 !important; }
-
       .printOnly{ display:block !important; }
 
       #printReport{
@@ -553,7 +630,6 @@
   </section>
 </div>
 
-<!-- PRINT/PDF-RAPPORT (genereres automatisk) -->
 <div id="printReport" class="printOnly"></div>
 
 <script>
@@ -641,7 +717,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return n / 100;
     };
 
-    // cum[i] (0..N), dlt[i] = (i-1)->i
     function deriveRound(axis, round, clicks, inputMode){
       const rawMap = state[axis][round] || {};
       const cum = Array.from({length: clicks+1}, ()=>null);
@@ -715,18 +790,20 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="pill mono">${inputMode === 'cum' ? 'Inntasting: kumulativ' : 'Inntasting: Δ'}</span>
           </div>
           <div style="padding:12px;">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width:80px">Knepp</th>
-                  <th style="width:220px">${inputMode==='cum' ? 'Måling (hundredeler, kumulativ)' : 'Måling (hundredeler, Δ)'}</th>
-                  <th>${inputMode==='cum' ? 'Kumulativ (mm)' : 'Autofyll kumulativ (mm)'}</th>
-                  <th>Δ (klikk i-1 → i) (mm)</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>${rows.join("")}</tbody>
-            </table>
+            <div class="tableWrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:80px">Knepp</th>
+                    <th style="width:220px">${inputMode==='cum' ? 'Måling (hundredeler, kumulativ)' : 'Måling (hundredeler, Δ)'}</th>
+                    <th>${inputMode==='cum' ? 'Kumulativ (mm)' : 'Autofyll kumulativ (mm)'}</th>
+                    <th>Δ (klikk i-1 → i) (mm)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>${rows.join("")}</tbody>
+              </table>
+            </div>
 
             <div class="hint" data-delta-list data-axis="${axis}" data-round="${round}">
               Δ mellom klikk: —
@@ -994,7 +1071,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return `${date}-${clean(name)}-${clean(diopter)}.pdf`;
     }
 
-    // ONE PAGE PER ROUND, with Height+Side on same page
     function renderPrintReport(){
       const spec = currentSpec();
       const rounds = roundsCount();
@@ -1100,10 +1176,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const report = el("printReport");
       const fileName = makePdfFileName();
 
-      // Turn on PDF mode (so html2pdf sees the report styled + visible)
       document.body.classList.add("pdfMode");
 
-      // Let browser layout everything before capture
       await new Promise(requestAnimationFrame);
       await new Promise(r => setTimeout(r, 60));
 
