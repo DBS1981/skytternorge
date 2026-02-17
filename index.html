@@ -154,6 +154,9 @@
     }
 
     .pill{
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
       font-family: var(--mono);
       font-size:12px;
       padding:6px 10px;
@@ -472,6 +475,43 @@
       margin-top:16px; border-top:2px solid #000; padding-top:10px;
       display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px;
     }
+  
+    /* ===== iPhone / mobil: rydd opp i header + piller ===== */
+    @media (max-width: 640px){
+
+      /* Mer luft så tekst ikke “klistrer” */
+      .sub{
+        line-height: 1.65;
+      }
+
+      /* Inline pills med padding kan krasje litt i iOS.
+         Gjør dem til inline-flex + gi litt luft mellom dem */
+      .sub .pill{
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+        line-height: 1.1;
+        margin: 4px 6px 0 0;
+      }
+
+      /* I topp-kortet: la lange pills få wrap i stedet for å kuttes */
+      .card .top{ align-items: flex-start; }
+      .card .top .pill{
+        white-space: normal;      /* <-- viktig */
+        max-width: 100%;
+      }
+    }
+
+    /* Bonus: badges litt mindre masete på mobil */
+    @media (max-width: 640px){
+      .badge{
+        font-size: 11px;
+        padding: 5px 8px;
+        margin: 3px 6px 3px 0;
+        white-space: normal;
+      }
+    }
+
   </style>
 </head>
 
