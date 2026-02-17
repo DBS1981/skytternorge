@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Testskjema – Dioptersikte (knepp-test)</title>
+
+  <!-- Charts (skjerm) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- PDF generator (gir filnavn + stabil PDF uten Windows-printer) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --text:#eaf0ff;
+      --line:rgba(255,255,255,.12);
+      --good:#19c37d;
+      --warn:#f2c94c;
+      --bad:#ff4d4d;
+      --accent:#7c5cff;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(124,92,255,.35), transparent 60%),
+                  radial-gradient(900px 700px at 110% 10%, rgba(25,195,125,.22), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+    }
+    header{
+      padding:24px 20px 10px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    h1{ margin:0 0 6px; font-size: 22px; letter-spacing:.2px; }
+    .sub{ margin:0; color:rgba(234,240,255,.75); font-size: 14px; line-height:1.35; }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 10px 20px 30px;
+      display:grid;
+      gap:16px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .top{
+      padding:16px 16px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .card .body{ padding:16px; }
+
+    .row{
+      display:grid;
+      gap:10px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items:end;
+    }
+    .field{grid-column: span 3}
+    .field.small{grid-column: span 2}
+    .field.wide{grid-column: span 4}
+
+    label{
+      display:block;
+      font-size:12px;
+      color: rgba(234,240,255,.78);
+      margin-bottom:6px;
+    }
+    input, select, button, textarea{
+      width:100%;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      padding:10px 12px;
+      outline:none;
+      font-size: 14px;
+    }
+    input::placeholder{color: rgba(234,240,255,.45)}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(124,92,255,.7);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.18);
+    }
+    textarea{min-height: 44px; resize: vertical;}
+
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; width:auto; }
+    button{
+      cursor:pointer;
+      border-color: rgba(124,92,255,.55);
+      background: rgba(124,92,255,.18);
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      width:auto;
+      padding:10px 14px;
+    }
+    button:hover{background: rgba(124,92,255,.25)}
+    button:active{transform: translateY(1px)}
+    button.secondary{ border-color: var(--line); background: rgba(255,255,255,.06); }
+    button.danger{ border-color: rgba(255,77,77,.6); background: rgba(255,77,77,.12); }
+
+    .pill{
+      font-family: var(--mono);
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border: 1px solid var(--line);
+      color: rgba(234,240,255,.85);
+      background: rgba(0,0,0,.22);
+      white-space:nowrap;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      padding: 12px 16px 0;
+      border-bottom:1px solid var(--line);
+      flex-wrap:wrap;
+    }
+    .tab{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      border-bottom: none;
+      padding:10px 12px;
+      border-radius: 14px 14px 0 0;
+      cursor:pointer;
+      color: rgba(234,240,255,.8);
+      user-select:none;
+    }
+    .tab.active{
+      background: rgba(124,92,255,.18);
+      border-color: rgba(124,92,255,.55);
+      color: var(--text);
+    }
+    .panel{display:none}
+    .panel.active{display:block}
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 14px;
+      border:1px solid var(--line);
+    }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color: rgba(234,240,255,.85);
+      padding:10px 10px;
+      background: rgba(255,255,255,.06);
+      border-bottom:1px solid var(--line);
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    tbody td{
+      padding:8px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      vertical-align:middle;
+      font-size: 13px;
+    }
+    tbody tr:last-child td{border-bottom:none}
+
+    .mono{font-family:var(--mono)}
+    .mm{opacity:.9}
+    .inputCell input{ width: 110px; padding:8px 10px; font-family: var(--mono); }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      white-space:nowrap;
+      margin: 3px 6px 3px 0;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
+    .dot.good{background: var(--good)}
+    .dot.warn{background: var(--warn)}
+    .dot.bad{background: var(--bad)}
+    .statusText{opacity:.9}
+
+    .cell-good{background: rgba(242,201,76,.14)}
+    .cell-warn{background: rgba(25,195,125,.12)}
+    .cell-bad{background: rgba(255,77,77,.14)}
+
+    .summary{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .hint{ color: rgba(234,240,255,.75); font-size: 12px; line-height:1.4; margin-top:8px; }
+
+    .roundBlock{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      overflow:hidden;
+      margin-top:12px;
+      background: rgba(0,0,0,.12);
+    }
+    .roundHdr{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:12px 12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .roundHdr h3{ margin:0; font-size:14px; letter-spacing:.2px; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media(min-width: 980px){
+      .grid2{ grid-template-columns: 1.2fr .8fr; }
+    }
+    .chartCard{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      background: rgba(0,0,0,.14);
+      padding: 10px 12px 12px;
+    }
+    .chartTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .chartTitle span{ font-size:12px; color: rgba(234,240,255,.78); }
+    canvas{ width:100% !important; height: 260px !important; }
+
+    .errorBox{
+      border:1px solid rgba(255,77,77,.55);
+      background: rgba(255,77,77,.10);
+      padding:10px 12px;
+      border-radius: 14px;
+      margin-top:12px;
+      font-size:13px;
+      display:none;
+    }
+
+    /* ---------- PRINT: profesjonell rapport ---------- */
+    .printOnly{ display:none; }
+
+    @page{
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print{
+      header, .wrap{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+
+      .printOnly{ display:block !important; }
+
+      #printReport{
+        font-family: Arial, Helvetica, sans-serif;
+        color:#000;
+      }
+
+      .pr-title{ font-size:18px; font-weight:700; margin:0 0 8px 0; }
+      .pr-sub{ margin:0 0 10px 0; font-size:12px; color:#333; }
+
+      .pr-meta{
+        border:1px solid #999;
+        border-radius:8px;
+        padding:10px;
+        margin:10px 0 12px 0;
+      }
+      .pr-grid{
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap:8px 14px;
+        font-size:12px;
+      }
+      .pr-item b{ display:inline-block; min-width:120px; }
+
+      .pr-page{ page-break-after: always; }
+      .pr-page:last-child{ page-break-after: auto; }
+
+      .pr-section h2{
+        font-size:14px;
+        margin:12px 0 8px 0;
+        padding-bottom:6px;
+        border-bottom:2px solid #000;
+      }
+
+      .pr-table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:11px;
+      }
+      .pr-table th, .pr-table td{
+        border:1px solid #999;
+        padding:5px 6px;
+        text-align:right;
+        vertical-align:middle;
+      }
+      .pr-table th{ text-align:left; background:#f2f2f2; }
+      .pr-zebra tbody tr:nth-child(even){ background:#fafafa; }
+
+      .pr-badge{
+        display:inline-block;
+        padding:2px 6px;
+        border-radius:999px;
+        border:1px solid #777;
+        font-size:10px;
+        text-align:center;
+        white-space:nowrap;
+      }
+      .pr-good{ background:#e8fff3; border-color:#1b7a52; }
+      .pr-warn{ background:#fff7dd; border-color:#a17c00; }
+      .pr-bad{  background:#ffe5e5; border-color:#a10000; }
+
+      .pr-sign{
+        margin-top:16px;
+        border-top:2px solid #000;
+        padding-top:10px;
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap:10px;
+        font-size:12px;
+      }
+    }
+
+    /* ---------- PDF MODE (for html2pdf) ---------- */
+    body.pdfMode{
+      background:#fff !important;
+      color:#000 !important;
+    }
+    body.pdfMode header,
+    body.pdfMode .wrap{
+      display:none !important;
+    }
+    body.pdfMode .printOnly{
+      display:block !important;
+    }
+
+    body.pdfMode #printReport{
+      font-family: Arial, Helvetica, sans-serif;
+      color:#000;
+    }
+    body.pdfMode .pr-title{ font-size:18px; font-weight:700; margin:0 0 8px 0; }
+    body.pdfMode .pr-sub{ margin:0 0 10px 0; font-size:12px; color:#333; }
+
+    body.pdfMode .pr-meta{
+      border:1px solid #999; border-radius:8px; padding:10px; margin:10px 0 12px 0;
+    }
+    body.pdfMode .pr-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; font-size:12px;
+    }
+    body.pdfMode .pr-item b{ display:inline-block; min-width:120px; }
+
+    body.pdfMode .pr-page{ page-break-after: always; }
+    body.pdfMode .pr-page:last-child{ page-break-after: auto; }
+
+    body.pdfMode .pr-section h2{
+      font-size:14px; margin:12px 0 8px 0; padding-bottom:6px; border-bottom:2px solid #000;
+    }
+
+    body.pdfMode .pr-table{
+      width:100%; border-collapse:collapse; font-size:11px;
+    }
+    body.pdfMode .pr-table th, body.pdfMode .pr-table td{
+      border:1px solid #999; padding:5px 6px; text-align:right; vertical-align:middle;
+    }
+    body.pdfMode .pr-table th{ text-align:left; background:#f2f2f2; }
+    body.pdfMode .pr-zebra tbody tr:nth-child(even){ background:#fafafa; }
+
+    body.pdfMode .pr-badge{
+      display:inline-block; padding:2px 6px; border-radius:999px; border:1px solid #777;
+      font-size:10px; text-align:center; white-space:nowrap;
+    }
+    body.pdfMode .pr-good{ background:#e8fff3; border-color:#1b7a52; }
+    body.pdfMode .pr-warn{ background:#fff7dd; border-color:#a17c00; }
+    body.pdfMode .pr-bad{  background:#ffe5e5; border-color:#a10000; }
+
+    body.pdfMode .pr-sign{
+      margin-top:16px; border-top:2px solid #000; padding-top:10px;
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Testskjema – Dioptersikte (knepp-test)</h1>
+  <p class="sub">
+    Legg inn målinger som heltall i hundredeler mm: <span class="pill">18 = 0,18 mm</span>.
+    Differanse vi tester er <span class="pill">1→2, 2→3, 3→4 ...</span>.
+    Tastatur: <span class="pill">Enter = neste</span> • <span class="pill">←/→/↑/↓</span>.
+  </p>
+</header>
+
+<div class="wrap">
+  <section class="card">
+    <div class="top">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <span class="pill" id="specPill">—</span>
+        <span class="pill" id="reqPill">—</span>
+        <span class="pill" id="marginPill">—</span>
+      </div>
+      <div class="btns noPrint">
+        <button class="secondary" id="btnSave" type="button">Lagre lokalt</button>
+        <button class="secondary" id="btnLoad" type="button">Hent lagret</button>
+        <button class="secondary" id="btnCSV" type="button">Eksporter CSV</button>
+        <button class="secondary" id="btnPDF" type="button">Lagre som PDF</button>
+        <button id="btnPrint" type="button">Skriv ut</button>
+        <button class="danger" id="btnReset" type="button">Nullstill</button>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="row">
+        <div class="field wide">
+          <label for="name">Navn / Skytter / Kontrollør</label>
+          <input id="name" placeholder="f.eks. Ola Nordmann" />
+        </div>
+
+        <div class="field wide">
+          <label for="diopter">Diopter (ID / type / serienr.)</label>
+          <input id="diopter" placeholder="f.eks. Anschütz 6805 – SN 12345" />
+        </div>
+
+        <div class="field small">
+          <label for="mode">Knepp-type</label>
+          <select id="mode">
+            <option value="grov">Grov</option>
+            <option value="fin">Fin</option>
+          </select>
+        </div>
+
+        <div class="field small">
+          <label for="rounds">Runder</label>
+          <select id="rounds">
+            <option value="1">1 runde</option>
+            <option value="2">2 runder</option>
+            <option value="3">3 runder</option>
+          </select>
+        </div>
+
+        <div class="field small">
+          <label for="inputMode">Inntasting</label>
+          <select id="inputMode">
+            <option value="cum">Kumulativ</option>
+            <option value="delta">Kun Δ</option>
+          </select>
+        </div>
+
+        <div class="field small">
+          <label for="margin">Feilmargin (mm)</label>
+          <input id="margin" inputmode="decimal" value="0.02" />
+        </div>
+
+        <div class="field small">
+          <label for="date">Dato</label>
+          <input id="date" type="date" />
+        </div>
+
+        <div class="field wide">
+          <label for="notes">Notater</label>
+          <textarea id="notes" placeholder="F.eks. testoppsett, temperatur, bemerkning..."></textarea>
+        </div>
+
+        <div class="field wide">
+          <label>Signatur (kommer med på utskrift/PDF)</label>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input id="sigName" placeholder="Kontrollør" />
+            <input id="sigDate" type="date" />
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">
+        Farge-regler:
+        <span class="badge"><span class="dot bad"></span>Rød</span> = |Δ − krav| &gt; margin.
+        <span class="badge"><span class="dot warn"></span>Grønn</span> = “på krav” (innenfor ±0,005 mm).
+        <span class="badge"><span class="dot good"></span>Gull</span> = innenfor margin, men ikke gull.
+      </div>
+
+      <div class="errorBox" id="errorBox"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="tabs">
+      <div class="tab active" data-tab="elev">Høyde</div>
+      <div class="tab" data-tab="wind">Side</div>
+    </div>
+
+    <div class="body">
+      <div class="panel active" id="panel-elev">
+        <div class="grid2">
+          <div>
+            <div id="roundsElev"></div>
+            <div class="summary" id="sumElev"></div>
+          </div>
+          <div class="chartCard">
+            <div class="chartTitle">
+              <span>Δ per klikk-par (snitt over runder) + krav</span>
+              <span class="pill mono">Høyde</span>
+            </div>
+            <canvas id="chartElev"></canvas>
+
+            <div class="chartTitle" style="margin-top:10px">
+              <span>Repeterbarhet: std.avvik per klikk-par</span>
+              <span class="pill mono">σ</span>
+            </div>
+            <canvas id="chartElevStd"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-wind">
+        <div class="grid2">
+          <div>
+            <div id="roundsWind"></div>
+            <div class="summary" id="sumWind"></div>
+          </div>
+          <div class="chartCard">
+            <div class="chartTitle">
+              <span>Δ per klikk-par (snitt over runder) + krav</span>
+              <span class="pill mono">Side</span>
+            </div>
+            <canvas id="chartWind"></canvas>
+
+            <div class="chartTitle" style="margin-top:10px">
+              <span>Repeterbarhet: std.avvik per klikk-par</span>
+              <span class="pill mono">σ</span>
+            </div>
+            <canvas id="chartWindStd"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- PRINT/PDF-RAPPORT (genereres automatisk) -->
+<div id="printReport" class="printOnly"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    const SPECS = {
+      grov: { label:"Grov", elevClicks: 12, windClicks: 6,  reqMm: 0.08 },
+      fin:  { label:"Fin",  elevClicks: 24, windClicks: 12, reqMm: 0.04 }
+    };
+    const GOLD_EPS = 0.005;
+
+    const el = (id) => document.getElementById(id);
+
+    const nameEl = el("name");
+    const diopterEl = el("diopter");
+    const modeEl = el("mode");
+    const roundsEl = el("rounds");
+    const inputModeEl = el("inputMode");
+    const marginEl = el("margin");
+    const dateEl = el("date");
+    const notesEl = el("notes");
+    const sigNameEl = el("sigName");
+    const sigDateEl = el("sigDate");
+
+    const specPill = el("specPill");
+    const reqPill = el("reqPill");
+    const marginPill = el("marginPill");
+
+    const roundsElevHost = el("roundsElev");
+    const roundsWindHost = el("roundsWind");
+    const sumElev = el("sumElev");
+    const sumWind = el("sumWind");
+
+    const errorBox = el("errorBox");
+
+    // Charts
+    const ctxElev = el("chartElev");
+    const ctxElevStd = el("chartElevStd");
+    const ctxWind = el("chartWind");
+    const ctxWindStd = el("chartWindStd");
+    let chartElev=null, chartElevStd=null, chartWind=null, chartWindStd=null;
+
+    // Dates
+    const today = new Date();
+    const pad = (n) => String(n).padStart(2,"0");
+    const iso = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+    if (!dateEl.value) dateEl.value = iso;
+    if (!sigDateEl.value) sigDateEl.value = iso;
+
+    // State
+    const state = { elev: {}, wind: {} };
+
+    const currentSpec = () => SPECS[modeEl.value];
+    const roundsCount = () => Number(roundsEl.value);
+    const marginMm = () => {
+      const n = Number(String(marginEl.value).replace(",", "."));
+      return Number.isFinite(n) ? n : 0.02;
+    };
+    const safeNum = (v) => {
+      const n = Number(String(v).replace(",", "."));
+      return Number.isFinite(n) ? n : null;
+    };
+    const fmt = (x) => (x===null || typeof x==="undefined") ? "—" : x.toFixed(3);
+
+    const statusFor = (delta, req, margin) => {
+      if (delta === null) return { cls: "", label: "—" };
+      const diff = Math.abs(delta - req);
+      if (diff <= GOLD_EPS) return { cls: "cell-warn", label: "På krav (grønn)" };
+      if (diff <= margin)   return { cls: "cell-good", label: "Innenfor (gull)" };
+      return { cls: "cell-bad", label: "Utenfor (rød)" };
+    };
+
+    const mean = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+    const stdev = (arr) => {
+      if (arr.length < 2) return 0;
+      const m = mean(arr);
+      const v = arr.reduce((acc,x)=>acc + (x-m)*(x-m), 0) / arr.length;
+      return Math.sqrt(v);
+    };
+
+    const toMmFromHundredths = (raw) => {
+      if (raw === "" || raw === null || typeof raw === "undefined") return null;
+      const n = safeNum(raw);
+      if (n === null) return null;
+      return n / 100;
+    };
+
+    // cum[i] (0..N), dlt[i] = (i-1)->i
+    function deriveRound(axis, round, clicks, inputMode){
+      const rawMap = state[axis][round] || {};
+      const cum = Array.from({length: clicks+1}, ()=>null);
+      const dlt = Array.from({length: clicks+1}, ()=>null);
+      cum[0] = 0.0;
+
+      if (inputMode === "cum"){
+        for(let i=1;i<=clicks;i++){
+          cum[i] = toMmFromHundredths(rawMap[i]);
+        }
+        for(let i=1;i<=clicks;i++){
+          if (cum[i]===null) { dlt[i]=null; continue; }
+          const prev = cum[i-1];
+          if (prev===null) { dlt[i]=null; continue; }
+          dlt[i] = cum[i] - prev;
+        }
+      } else {
+        for(let i=1;i<=clicks;i++){
+          const dm = toMmFromHundredths(rawMap[i]);
+          dlt[i] = dm;
+          if (dm===null || cum[i-1]===null) cum[i]=null;
+          else cum[i] = cum[i-1] + dm;
+        }
+      }
+      return { cum, dlt };
+    }
+
+    function updatePills(){
+      const spec = currentSpec();
+      const margin = marginMm();
+      specPill.textContent = `${spec.label}: Høyde ${spec.elevClicks} knepp/runde • Side ${spec.windClicks} knepp/runde`;
+      reqPill.textContent = `Krav: ${spec.reqMm.toFixed(2)} mm per klikk-par (i→i+1)`;
+      marginPill.textContent = `Feilmargin: ±${margin.toFixed(3)} mm`;
+    }
+
+    function buildRoundTable(axis, round, clicks){
+      const inputMode = inputModeEl.value;
+      if (!state[axis][round]) state[axis][round] = {};
+
+      const rows = [];
+      for(let i=0;i<=clicks;i++){
+        const is0 = (i===0);
+        const inputCell = is0
+          ? `<span class="mono">0</span>`
+          : `<input class="meas" data-axis="${axis}" data-round="${round}" data-i="${i}"
+                   inputmode="numeric" placeholder="${inputMode==='cum'?'kumulativ':'Δ'}"
+                   value="${(state[axis][round][i] ?? "")}" />`;
+
+        rows.push(`
+          <tr>
+            <td class="mono">${i}</td>
+            <td class="inputCell">${inputCell}</td>
+
+            <td class="mono mm"
+                data-out="cum" data-axis="${axis}" data-round="${round}" data-i="${i}">—</td>
+
+            <td class="mono"
+                data-out="dlt" data-axis="${axis}" data-round="${round}" data-i="${i}">—</td>
+
+            <td data-out="st" data-axis="${axis}" data-round="${round}" data-i="${i}">
+              <span class="statusText">—</span>
+            </td>
+          </tr>
+        `);
+      }
+
+      return `
+        <div class="roundBlock">
+          <div class="roundHdr">
+            <h3>Runde ${round}</h3>
+            <span class="pill mono">${inputMode === 'cum' ? 'Inntasting: kumulativ' : 'Inntasting: Δ'}</span>
+          </div>
+          <div style="padding:12px;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:80px">Knepp</th>
+                  <th style="width:220px">${inputMode==='cum' ? 'Måling (hundredeler, kumulativ)' : 'Måling (hundredeler, Δ)'}</th>
+                  <th>${inputMode==='cum' ? 'Kumulativ (mm)' : 'Autofyll kumulativ (mm)'}</th>
+                  <th>Δ (klikk i-1 → i) (mm)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>${rows.join("")}</tbody>
+            </table>
+
+            <div class="hint" data-delta-list data-axis="${axis}" data-round="${round}">
+              Δ mellom klikk: —
+            </div>
+
+            <div class="hint">
+              Skriv tall (f.eks. <b>18</b>) og trykk <b>Enter</b> for neste felt. <b>↑/↓</b> flytter mellom runder på samme knepp.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildAxis(axis){
+      const spec = currentSpec();
+      const clicks = axis==="elev" ? spec.elevClicks : spec.windClicks;
+      const rounds = roundsCount();
+
+      for(let r=1;r<=rounds;r++){
+        if(!state[axis][r]) state[axis][r] = {};
+      }
+      Object.keys(state[axis]).forEach(r=>{
+        if(Number(r) > rounds) delete state[axis][r];
+      });
+
+      const blocks = [];
+      for(let r=1;r<=rounds;r++){
+        blocks.push(buildRoundTable(axis, r, clicks));
+      }
+
+      const host = axis==="elev" ? roundsElevHost : roundsWindHost;
+      host.innerHTML = blocks.join("");
+
+      wireInputs(axis);
+      updateAxisOutputs(axis);
+      recomputeAxis(axis);
+    }
+
+    function updateAxisOutputs(axis){
+      const spec = currentSpec();
+      const clicks = axis==="elev" ? spec.elevClicks : spec.windClicks;
+      const rounds = roundsCount();
+      const req = spec.reqMm;
+      const margin = marginMm();
+      const inputMode = inputModeEl.value;
+
+      for(let r=1;r<=rounds;r++){
+        const { cum, dlt } = deriveRound(axis, r, clicks, inputMode);
+
+        for(let i=0;i<=clicks;i++){
+          const cumCell = document.querySelector(`[data-out="cum"][data-axis="${axis}"][data-round="${r}"][data-i="${i}"]`);
+          const dltCell = document.querySelector(`[data-out="dlt"][data-axis="${axis}"][data-round="${r}"][data-i="${i}"]`);
+          const stCell  = document.querySelector(`[data-out="st"][data-axis="${axis}"][data-round="${r}"][data-i="${i}"]`);
+          if(!cumCell || !dltCell || !stCell) continue;
+
+          cumCell.textContent = (cum[i]===null ? "—" : `${fmt(cum[i])} mm`);
+
+          const delta = (i===0 ? null : dlt[i]);
+          const st = statusFor(delta, req, margin);
+
+          dltCell.classList.remove("cell-good","cell-warn","cell-bad");
+          stCell.classList.remove("cell-good","cell-warn","cell-bad");
+
+          dltCell.textContent = (delta===null ? "—" : `${fmt(delta)} mm`);
+          stCell.querySelector(".statusText").textContent = st.label;
+
+          if(st.cls){
+            dltCell.classList.add(st.cls);
+            stCell.classList.add(st.cls);
+          }
+        }
+
+        const listEl = document.querySelector(`[data-delta-list][data-axis="${axis}"][data-round="${r}"]`);
+        if(listEl){
+          const parts = [];
+          for(let i=1;i<=clicks-1;i++){
+            const delta = dlt[i+1];
+            const st = statusFor(delta, req, margin);
+            const cls = st.cls ? st.cls : "";
+            const label = (delta===null) ? "—" : delta.toFixed(3);
+            parts.push(
+              `<span class="badge ${cls}">
+                 <span class="mono">${i}→${i+1}:</span>
+                 <span class="mono">${label}</span><span style="opacity:.7">mm</span>
+               </span>`
+            );
+          }
+          listEl.innerHTML = `<b>Δ mellom klikk (det du tester):</b> ${parts.join(" ")}`;
+        }
+      }
+    }
+
+    function recomputeAxis(axis){
+      const spec = currentSpec();
+      const clicks = axis==="elev" ? spec.elevClicks : spec.windClicks;
+      const rounds = roundsCount();
+      const req = spec.reqMm;
+      const inputMode = inputModeEl.value;
+      const margin = marginMm();
+
+      const pairs = clicks - 1;
+      const deltasPerPair = Array.from({length: pairs+1}, ()=>[]);
+      let green=0, gold=0, red=0, missing=0;
+
+      for(let r=1;r<=rounds;r++){
+        const { dlt } = deriveRound(axis, r, clicks, inputMode);
+        for(let p=1;p<=pairs;p++){
+          const delta = dlt[p+1];
+          if(delta===null){ missing++; continue; }
+          deltasPerPair[p].push(delta);
+          const diff = Math.abs(delta - req);
+          if(diff <= GOLD_EPS) gold++;
+          else if(diff <= margin) green++;
+          else red++;
+        }
+      }
+
+      const avg = Array.from({length: pairs+1}, (_,p)=> p===0 ? 0 : (mean(deltasPerPair[p]) ?? 0));
+      const sd  = Array.from({length: pairs+1}, (_,p)=> p===0 ? 0 : stdev(deltasPerPair[p] ?? []));
+
+      const allD = deltasPerPair.slice(1).flat();
+      const avgAll = mean(allD) ?? null;
+      const sdAll = stdev(allD);
+
+      const sumHost = axis==="elev" ? sumElev : sumWind;
+      sumHost.innerHTML = `
+        <span class="badge"><span class="dot good"></span>Grønn: <b>${gold}</b></span>
+        <span class="badge"><span class="dot warn"></span>Gull: <b>${green}</b></span>
+        <span class="badge"><span class="dot bad"></span>Rød: <b>${red}</b></span>
+        <span class="badge"><span class="dot"></span>Mangler: <b>${missing}</b></span>
+        <span class="badge"><span class="dot"></span>Snitt Δ (alle par): <b class="mono">${avgAll===null?"—":avgAll.toFixed(3)}</b> mm</span>
+        <span class="badge"><span class="dot"></span>Std.avvik (alle par): <b class="mono">${sdAll.toFixed(3)}</b> mm</span>
+      `;
+
+      drawCharts(axis, avg.slice(1), sd.slice(1), req, pairs);
+    }
+
+    function drawCharts(axis, avgData, sdData, req, pairs){
+      const labels = Array.from({length: pairs}, (_,i)=> `${i+1}→${i+2}`);
+      const reqLine = avgData.map(()=>req);
+
+      const isElev = axis==="elev";
+      const c1 = isElev ? ctxElev : ctxWind;
+      const c2 = isElev ? ctxElevStd : ctxWindStd;
+
+      if(isElev){
+        if(chartElev) chartElev.destroy();
+        if(chartElevStd) chartElevStd.destroy();
+      } else {
+        if(chartWind) chartWind.destroy();
+        if(chartWindStd) chartWindStd.destroy();
+      }
+
+      const chart1 = new Chart(c1, {
+        data: {
+          labels,
+          datasets: [
+            { type:"bar", label:"Δ (snitt)", data: avgData },
+            { type:"line", label:"Krav", data: reqLine, pointRadius: 0, borderWidth: 2 }
+          ]
+        },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true } }, scales:{ y:{ beginAtZero:true } } }
+      });
+
+      const chart2 = new Chart(c2, {
+        type:"bar",
+        data: { labels, datasets: [{ label:"Std.avvik per klikk-par (σ)", data: sdData }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true } }, scales:{ y:{ beginAtZero:true } } }
+      });
+
+      if(isElev){ chartElev = chart1; chartElevStd = chart2; }
+      else { chartWind = chart1; chartWindStd = chart2; }
+    }
+
+    function wireInputs(axis){
+      const host = axis==="elev" ? roundsElevHost : roundsWindHost;
+      const inputs = Array.from(host.querySelectorAll("input.meas"));
+
+      inputs.sort((a,b)=>{
+        const ra = Number(a.dataset.round), rb = Number(b.dataset.round);
+        const ia = Number(a.dataset.i), ib = Number(b.dataset.i);
+        return (ra-rb) || (ia-ib);
+      });
+
+      const focusAt = (idx) => {
+        if(idx < 0) idx = 0;
+        if(idx >= inputs.length) idx = inputs.length - 1;
+        const t = inputs[idx];
+        if(!t) return;
+        t.focus();
+        t.select();
+      };
+
+      inputs.forEach((inp) => {
+        inp.addEventListener("input", (e)=>{
+          const ax = e.target.dataset.axis;
+          const r = Number(e.target.dataset.round);
+          const i = Number(e.target.dataset.i);
+          if(!state[ax][r]) state[ax][r] = {};
+          state[ax][r][i] = e.target.value;
+          updateAxisOutputs(ax);
+          recomputeAxis(ax);
+        });
+
+        inp.addEventListener("keydown", (e)=>{
+          const idx = inputs.indexOf(e.target);
+          if(idx < 0) return;
+          if(e.key === "Enter"){ e.preventDefault(); focusAt(idx+1); return; }
+          if(e.key === "ArrowRight"){ e.preventDefault(); focusAt(idx+1); return; }
+          if(e.key === "ArrowLeft"){ e.preventDefault(); focusAt(idx-1); return; }
+
+          if(e.key === "ArrowUp"){
+            e.preventDefault();
+            const r = Number(e.target.dataset.round);
+            const i = Number(e.target.dataset.i);
+            const target = inputs.find(x => Number(x.dataset.round)===r-1 && Number(x.dataset.i)===i);
+            if(target){ target.focus(); target.select(); }
+            return;
+          }
+          if(e.key === "ArrowDown"){
+            e.preventDefault();
+            const r = Number(e.target.dataset.round);
+            const i = Number(e.target.dataset.i);
+            const target = inputs.find(x => Number(x.dataset.round)===r+1 && Number(x.dataset.i)===i);
+            if(target){ target.focus(); target.select(); }
+            return;
+          }
+        });
+      });
+    }
+
+    // Tabs
+    document.querySelectorAll(".tab").forEach(t => {
+      t.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+        t.classList.add("active");
+        const tab = t.dataset.tab;
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        el(`panel-${tab}`).classList.add("active");
+      });
+    });
+
+    // Helpers for PDF + print report
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function makePdfFileName(){
+      const date = (dateEl.value || new Date().toISOString().slice(0,10));
+      const name = (nameEl.value || "UtenNavn");
+      const diopter = (diopterEl.value || "UtenDiopter");
+
+      const clean = (txt) =>
+        String(txt)
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g,"")
+          .replace(/[^a-zA-Z0-9]+/g,"-")
+          .replace(/^-+|-+$/g,"");
+
+      return `${date}-${clean(name)}-${clean(diopter)}.pdf`;
+    }
+
+    // ONE PAGE PER ROUND, with Height+Side on same page
+    function renderPrintReport(){
+      const spec = currentSpec();
+      const rounds = roundsCount();
+      const margin = marginMm();
+      const req = spec.reqMm;
+      const inputMode = inputModeEl.value;
+
+      let pages = "";
+
+      for(let r=1; r<=rounds; r++){
+
+        const makeAxis = (axis, axisLabel, clicks) => {
+          const pairs = clicks - 1;
+          const { cum, dlt } = deriveRound(axis, r, clicks, inputMode);
+
+          const rows = [];
+          for(let p=1; p<=pairs; p++){
+            const delta = dlt[p+1];
+            const st = statusFor(delta, req, margin);
+
+            const badgeCls =
+              st.cls === "cell-warn" ? "pr-warn" :
+              st.cls === "cell-good" ? "pr-good" :
+              st.cls === "cell-bad"  ? "pr-bad"  : "";
+
+            rows.push(`
+              <tr>
+                <td>${p}</td>
+                <td>${p}→${p+1}</td>
+                <td>${delta===null ? "—" : delta.toFixed(3)}</td>
+                <td>${cum[p]===null ? "—" : cum[p].toFixed(3)}</td>
+                <td>${cum[p+1]===null ? "—" : cum[p+1].toFixed(3)}</td>
+                <td><span class="pr-badge ${badgeCls}">${escapeHtml(st.label)}</span></td>
+              </tr>
+            `);
+          }
+
+          return `
+            <div class="pr-section">
+              <h2>${axisLabel}</h2>
+              <table class="pr-table pr-zebra">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Par</th>
+                    <th>Δ (mm)</th>
+                    <th>Kum @ p (mm)</th>
+                    <th>Kum @ p+1 (mm)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>${rows.join("")}</tbody>
+              </table>
+            </div>
+          `;
+        };
+
+        pages += `
+          <div class="pr-page">
+            <div class="pr-title">Testskjema – Dioptersikte (knepp-test)</div>
+            <div class="pr-sub">Runde ${r} • Δ mellom klikk (1→2, 2→3, …) • ${inputMode==="cum"?"Kumulativ":"Kun Δ"}</div>
+
+            <div class="pr-meta">
+              <div class="pr-grid">
+                <div class="pr-item"><b>Dato:</b> ${escapeHtml(dateEl.value || "—")}</div>
+                <div class="pr-item"><b>Knepp-type:</b> ${escapeHtml(spec.label)}</div>
+                <div class="pr-item"><b>Navn:</b> ${escapeHtml(nameEl.value || "—")}</div>
+                <div class="pr-item"><b>Diopter:</b> ${escapeHtml(diopterEl.value || "—")}</div>
+                <div class="pr-item"><b>Krav:</b> ${req.toFixed(2)} mm</div>
+                <div class="pr-item"><b>Feilmargin:</b> ±${margin.toFixed(3)} mm</div>
+              </div>
+              <div style="margin-top:8px;font-size:12px;">
+                <b>Notater:</b> ${escapeHtml((notesEl.value || "—").replace(/\n/g," "))}
+              </div>
+            </div>
+
+            ${makeAxis("elev","Høyde", spec.elevClicks)}
+            ${makeAxis("wind","Side", spec.windClicks)}
+
+            ${r === rounds ? `
+              <div class="pr-sign">
+                <div><b>Kontrollør:</b> ${escapeHtml(sigNameEl.value || "—")}</div>
+                <div><b>Signaturdato:</b> ${escapeHtml(sigDateEl.value || "—")}</div>
+              </div>
+            ` : ""}
+
+          </div>
+        `;
+      }
+
+      el("printReport").innerHTML = pages;
+    }
+
+    // Buttons
+    el("btnPrint").addEventListener("click", () => {
+      renderPrintReport();
+      window.print();
+    });
+
+    el("btnPDF").addEventListener("click", async () => {
+      renderPrintReport();
+
+      const report = el("printReport");
+      const fileName = makePdfFileName();
+
+      // Turn on PDF mode (so html2pdf sees the report styled + visible)
+      document.body.classList.add("pdfMode");
+
+      // Let browser layout everything before capture
+      await new Promise(requestAnimationFrame);
+      await new Promise(r => setTimeout(r, 60));
+
+      const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     fileName,
+        image:        { type: "jpeg", quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+        jsPDF:        { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak:    { mode: ["css", "legacy"] }
+      };
+
+      try{
+        await html2pdf().set(opt).from(report).save();
+      } finally {
+        document.body.classList.remove("pdfMode");
+      }
+    });
+
+    el("btnReset").addEventListener("click", () => {
+      state.elev = {};
+      state.wind = {};
+      rebuild();
+    });
+
+    el("btnSave").addEventListener("click", () => {
+      const payload = {
+        meta: {
+          name: nameEl.value,
+          diopter: diopterEl.value,
+          mode: modeEl.value,
+          rounds: roundsEl.value,
+          inputMode: inputModeEl.value,
+          margin: marginEl.value,
+          date: dateEl.value,
+          notes: notesEl.value,
+          sigName: sigNameEl.value,
+          sigDate: sigDateEl.value
+        },
+        state
+      };
+      localStorage.setItem("diopter_test_pretty_pairs_pdfmode", JSON.stringify(payload));
+      alert("Lagret lokalt i nettleseren.");
+    });
+
+    el("btnLoad").addEventListener("click", () => {
+      const raw = localStorage.getItem("diopter_test_pretty_pairs_pdfmode");
+      if (!raw) return alert("Fant ingen lagring i nettleseren.");
+      try{
+        const payload = JSON.parse(raw);
+        nameEl.value = payload.meta?.name ?? "";
+        diopterEl.value = payload.meta?.diopter ?? "";
+        modeEl.value = payload.meta?.mode ?? "grov";
+        roundsEl.value = payload.meta?.rounds ?? "1";
+        inputModeEl.value = payload.meta?.inputMode ?? "cum";
+        marginEl.value = payload.meta?.margin ?? "0.02";
+        dateEl.value = payload.meta?.date ?? dateEl.value;
+        notesEl.value = payload.meta?.notes ?? "";
+        sigNameEl.value = payload.meta?.sigName ?? "";
+        sigDateEl.value = payload.meta?.sigDate ?? sigDateEl.value;
+
+        state.elev = payload.state?.elev ?? {};
+        state.wind = payload.state?.wind ?? {};
+        rebuild();
+        alert("Hentet lagret skjema.");
+      }catch(err){
+        alert("Kunne ikke lese lagret data (korrupt).");
+      }
+    });
+
+    el("btnCSV").addEventListener("click", () => {
+      const spec = currentSpec();
+      const rounds = roundsCount();
+      const margin = marginMm();
+      const req = spec.reqMm;
+      const inputMode = inputModeEl.value;
+
+      function mkAxis(axis, axisLabel, clicks){
+        const pairs = clicks - 1;
+        const lines = [];
+        lines.push(`Aksel;${axisLabel}`);
+        lines.push(`Krav (mm);${req}`);
+        lines.push(`Feilmargin (mm);${margin}`);
+        lines.push(`Inntasting;${inputMode}`);
+        lines.push(`Runde;Par;KneppFra;KneppTil;DeltaMm;Status`);
+        for(let r=1;r<=rounds;r++){
+          const { dlt } = deriveRound(axis, r, clicks, inputMode);
+          for(let p=1;p<=pairs;p++){
+            const delta = dlt[p+1];
+            const st = statusFor(delta, req, margin).label;
+            lines.push([r, `${p}→${p+1}`, p, p+1, (delta===null?"":delta.toFixed(3)), st].join(";"));
+          }
+        }
+        lines.push("");
+        return lines;
+      }
+
+      const header = [
+        `Navn;${(nameEl.value||"")}`,
+        `Diopter;${(diopterEl.value||"")}`,
+        `Dato;${(dateEl.value||"")}`,
+        `Knepp-type;${spec.label}`,
+        `Runder;${rounds}`,
+        `Notater;${(notesEl.value||"").replace(/\n/g," ")}`,
+        `Kontrollør;${(sigNameEl.value||"")}`,
+        `Signaturdato;${(sigDateEl.value||"")}`,
+        ""
+      ];
+
+      const lines = [
+        ...header,
+        ...mkAxis("elev","Høyde", spec.elevClicks),
+        ...mkAxis("wind","Side", spec.windClicks)
+      ];
+
+      const csv = lines.join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `diopter-test_pairs_${spec.label}_${dateEl.value || "dato"}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Rebuild triggers
+    [modeEl, roundsEl, inputModeEl].forEach(x => x.addEventListener("change", rebuild));
+    marginEl.addEventListener("input", () => {
+      updatePills();
+      updateAxisOutputs("elev");
+      updateAxisOutputs("wind");
+      recomputeAxis("elev");
+      recomputeAxis("wind");
+    });
+
+    function rebuild(){
+      errorBox.style.display = "none";
+      updatePills();
+      buildAxis("elev");
+      buildAxis("wind");
+    }
+
+    rebuild();
+
+    if(!roundsElevHost.innerHTML.trim()){
+      errorBox.style.display = "block";
+      errorBox.textContent = "Tabellen ble ikke generert. Sjekk at filen er limt inn komplett, og at nettleseren ikke blokkerer script (Chart.js).";
+    }
+
+  } catch (err) {
+    const box = document.getElementById("errorBox");
+    if (box) {
+      box.style.display = "block";
+      box.textContent = "JavaScript-feil: " + (err?.message || err);
+    }
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>
